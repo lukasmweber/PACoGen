@@ -370,8 +370,11 @@ parameter S = log2(N);
 	assign vld = |in;
 	assign out = ~in[1] & in[0];
       end
-    else if (N & (N-1))
-      LOD #(1<<S) LOD ({1<<S {1'b0}} | in,out,vld);
+    else if (N & (N-1)) begin
+      wire [S-1:0] tmp;
+      LOD #(1<<S) LOD ({1<<S {1'b0}} | in,tmp,vld);
+      assign out = tmp - ((1<<S) - N);
+    end
     else
       begin
 	wire [S-2:0] out_l, out_h;
