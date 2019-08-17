@@ -23,7 +23,7 @@ wire[N-1:0] out;
 wire inf, zero, done;
 
 reg[sample_bits-1:0] in_counter, out_counter;
-reg clk;
+reg clk, cen;
 
 reg [N-1:0] data1 [1:samples];
 reg [N-1:0] data2 [1:samples];
@@ -33,18 +33,20 @@ initial $readmemb("Pin1_36bit.txt", data1);
 initial $readmemb("Pin2_36bit.txt", data2);
 initial $readmemb("Pout_36bit_ADD.txt", ref);
 
-posit_add #(.N(N), .es(es)) add (in1, in2, start, out, inf, zero, done);
+posit_add  #(.N(N), .es(es)) add (clk, in1, in2, start, out, done);
 
 initial begin
   in1 = 0;
   in2 = 0;
   start = 0;
-  in_counter = 0;
-  out_counter = 0;
+  in_counter = 1;
+  out_counter = 1;
   clk = 0;
+  cen = 0;
   
   #100;
 
+  cen = 1;
   //#10000 $finish ;
 
 end
@@ -55,26 +57,31 @@ always begin
 end
 
 always @(posedge clk) begin
-  if(in_counter < samples) begin
-    in1 = data1[in_counter];
-    in2 = data2[in_counter];
-    in_counter = in_counter + 1;
-    start = 1;
-  end
-  else begin
-    in1 = 0;
-    in2 = 0;
-    start = 0;
+  if(cen) begin  
+    if(in_counter <= samples) begin
+      in1 = data1[in_counter];
+      in2 = data2[in_counter];
+      in_counter = in_counter + 1;
+      start = 1;
+    end
+    else begin
+      in1 = 0;
+      in2 = 0;
+      start = 0;
+    end
   end
 end
 
 reg [N-1:0] error;
 always @(negedge clk) begin
-  if(out_counter < samples) begin
+  if(out_counter <= samples) begin
     if(done) begin
       error = (ref[out_counter] > out) ? ref[out_counter] - out : out - ref[out_counter];
       if(error>1) begin
         $display("Computation error %h vs %h\n", out, ref[out_counter]);
+      end
+      else begin
+        $display("Correct Computation");
       end
       out_counter = out_counter + 1;
     end
