@@ -33,7 +33,7 @@ initial $readmemb("Pin1_36bit.txt", data1);
 initial $readmemb("Pin2_36bit.txt", data2);
 initial $readmemb("Pout_36bit_MUL.txt", ref);
 
-posit_mul  #(.N(N), .es(es)) add (clk, in1, in2, start, out, done);
+posit_mult  #(.N(N), .es(es)) add (clk, in1, in2, start, out, done);
 
 initial begin
   in1 = 0;
@@ -79,9 +79,6 @@ always @(negedge clk) begin
       error = (ref[out_counter] > out) ? ref[out_counter] - out : out - ref[out_counter];
       if(error>1) begin
         $display("Computation error %h vs %h\n", out, ref[out_counter]);
-      end
-      else begin
-        $display("Correct Computation");
       end
       out_counter = out_counter + 1;
     end
