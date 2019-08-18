@@ -393,6 +393,14 @@ parameter S = log2(N);
   endgenerate
 endmodule
 
+
+
+/*
+    The Following modules were generated using Chisel3.
+    https://github.com/freechipsproject/chisel3/blob/master/src/LICENSE.txt
+    
+*/
+
 module DSPMult24x17( // @[:@3.2]
   input         clock, // @[:@4.4]
   input  [23:0] io_a, // @[:@6.4]
